@@ -1,0 +1,275 @@
+/* Styles globaux : remise à zéro, typographie, boutons, champs. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Halo discret en haut de page : la lumière du projecteur dans la salle obscure */
+  background:
+    radial-gradient(70rem 26rem at 28% -8rem, rgb(245 193 92 / 0.1), transparent 70%) no-repeat,
+    var(--night);
+  color: var(--ivory);
+  font-family: var(--font);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* Les titres utilisent la version étroite et grasse de la police :
+   c'est elle qui donne le ton "affiche de cinéma". */
+h1,
+h2,
+.display {
+  font-stretch: 75%;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1,
+.display {
+  font-size: var(--text-display);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* Focus clavier toujours visible */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--mist);
+}
+
+/* ---------- Boutons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0 var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ivory);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--fast),
+    border-color var(--fast),
+    color var(--fast),
+    transform var(--fast);
+}
+
+.button:hover {
+  background: var(--surface-raised);
+  border-color: var(--mist);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button--primary {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--night-deep);
+}
+
+.button--primary:hover {
+  background: var(--amber-strong);
+  border-color: var(--amber-strong);
+}
+
+.button--quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--mist);
+  padding: 0 var(--space-3);
+}
+
+.button--quiet:hover {
+  background: var(--surface);
+  border-color: transparent;
+  color: var(--ivory);
+}
+
+.button--danger:hover {
+  background: transparent;
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+.button--small {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* ---------- Champs de formulaire ---------- */
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-weight: 600;
+}
+
+.field__hint {
+  color: var(--mist);
+  font-size: var(--text-sm);
+}
+
+.input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--night-deep);
+  transition: border-color var(--fast);
+}
+
+.input:hover {
+  border-color: var(--mist);
+}
+
+.input:focus-visible {
+  outline-offset: 0;
+  border-color: var(--amber);
+  border-radius: var(--radius-control);
+}
+
+textarea.input {
+  min-height: 7rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-error {
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--rose);
+  border-radius: 4px;
+  background: rgb(236 106 130 / 0.12);
+}
+
+/* ---------- États de page ---------- */
+
+.page {
+  width: min(100% - 2.5rem, var(--page-width));
+  margin-inline: auto;
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.empty-state {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-4);
+  padding-block: var(--space-7);
+  max-width: 34rem;
+}
+
+/* Bloc "fantôme" affiché pendant un chargement */
+.skeleton {
+  border-radius: var(--radius-poster);
+  background: linear-gradient(100deg, var(--surface) 40%, var(--surface-raised) 50%, var(--surface) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Transition entre les pages (View Transitions) ----------
+   Le navigateur fond l'ancienne page dans la nouvelle ; l'affiche cliquée,
+   elle, glisse de la grille vers la fiche du film (voir Poster.jsx). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+}
+
+::view-transition-group(*) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out);
+}
+
+/* Respect du réglage système "réduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

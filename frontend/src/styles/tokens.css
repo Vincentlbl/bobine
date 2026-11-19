@@ -1,0 +1,43 @@
+/* Jetons de design de Bobine : toutes les couleurs, tailles et durées
+   utilisées dans l'application sont définies ici, une seule fois. */
+:root {
+  /* Couleurs : la salle obscure (indigo nuit) et la lumière du projecteur (ambre) */
+  --night: #16162a; /* fond de page */
+  --night-deep: #0f0f1f; /* zones en retrait */
+  --surface: #212039; /* cartes, champs */
+  --surface-raised: #2b2a47; /* survol */
+  --line: #36345a; /* bordures */
+  --ivory: #efe9dc; /* texte principal */
+  --mist: #a09cb8; /* texte secondaire */
+  --amber: #f5c15c; /* action principale, notes */
+  --amber-strong: #ffd27a;
+  --rose: #ec6a82; /* coup de cœur, suppression, erreurs */
+  --periwinkle: #93a6f7; /* "à voir" */
+
+  /* Typographie : une seule famille, deux largeurs */
+  --font: 'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: clamp(2.25rem, 1.4rem + 4vw, 4.25rem);
+
+  /* Espacements, rayons */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --radius-poster: 6px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+  --page-width: 76rem;
+
+  /* Mouvements */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 150ms;
+  --medium: 320ms;
+}
