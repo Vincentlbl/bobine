@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout';
+import CatalogPage from './pages/CatalogPage';
 import LoginPage from './pages/LoginPage';
+import MoviePage from './pages/MoviePage';
 import NotFoundPage from './pages/NotFoundPage';
 import RegisterPage from './pages/RegisterPage';
 
@@ -9,6 +11,8 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
+      { path: '/', element: <CatalogPage /> },
+      { path: '/films/:id', element: <MoviePage /> },
       { path: '/connexion', element: <LoginPage /> },
       { path: '/inscription', element: <RegisterPage /> },
       { path: '*', element: <NotFoundPage /> },

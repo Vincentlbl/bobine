@@ -1,0 +1,144 @@
+.movie-backdrop {
+  position: relative;
+  overflow: clip;
+}
+
+.movie-backdrop__glow {
+  position: absolute;
+  top: -12rem;
+  left: 50%;
+  z-index: -1;
+  width: 110%;
+  height: 34rem;
+  object-fit: cover;
+  opacity: 0.32;
+  filter: blur(90px) saturate(1.4);
+  transform: translateX(-50%);
+  mask-image: linear-gradient(to bottom, black 40%, transparent);
+  animation: glow-in 900ms ease-out;
+}
+
+@keyframes glow-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.movie {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-7);
+  padding-top: var(--space-7);
+}
+
+.movie__poster {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.movie__poster .poster {
+  border-radius: 10px;
+  box-shadow: 0 30px 70px rgb(6 6 18 / 0.7);
+}
+
+.movie__body {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.movie__header {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.movie__facts,
+.movie__genres {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.movie__facts {
+  gap: var(--space-2) var(--space-5);
+  font-size: var(--text-lg);
+}
+
+.movie__imdb {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.movie__imdb svg {
+  color: var(--amber);
+}
+
+.movie__imdb .muted {
+  font-size: var(--text-sm);
+}
+
+.movie__genres {
+  gap: var(--space-2);
+}
+
+.movie__genre {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.movie__details {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.movie__plot {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+}
+
+.movie__credits {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.movie__credit {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: var(--space-3);
+}
+
+.movie__credit dt {
+  color: var(--mist);
+}
+
+.movie__credit dd {
+  margin: 0;
+}
+
+@media (max-width: 52rem) {
+  .movie {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    padding-top: var(--space-5);
+  }
+
+  .movie__poster {
+    position: static;
+    width: min(60%, 15rem);
+  }
+
+  .movie__facts {
+    font-size: var(--text-base);
+  }
+
+  .movie__credit {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

@@ -1,0 +1,70 @@
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: var(--space-6) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 30rem) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5) var(--space-4);
+  }
+}
+
+.movie-card {
+  display: grid;
+  gap: var(--space-1);
+  text-decoration: none;
+  transition: opacity var(--medium) ease;
+}
+
+.movie-card .poster {
+  margin-bottom: var(--space-2);
+  transition:
+    transform var(--medium) var(--ease-out),
+    box-shadow var(--medium) var(--ease-out);
+}
+
+.movie-card__title {
+  overflow: hidden;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movie-card__meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--mist);
+  font-size: var(--text-sm);
+}
+
+.movie-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+/* L'effet "projecteur" : l'affiche survolée s'avance dans la lumière,
+   les autres restent dans la pénombre. Uniquement avec une souris. */
+@media (hover: hover) {
+  .movie-grid:has(.movie-card:hover) .movie-card:not(:hover) {
+    opacity: 0.4;
+  }
+
+  .movie-card:hover .poster,
+  .movie-card:focus-visible .poster {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 18px 40px rgb(6 6 18 / 0.65);
+  }
+}
+
+.movie-card:focus-visible {
+  outline-offset: 6px;
+}
