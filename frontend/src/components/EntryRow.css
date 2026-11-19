@@ -1,0 +1,100 @@
+.entry-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry-row {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--line);
+  animation: row-in var(--medium) var(--ease-out);
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.entry-row__body {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.entry-row__title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.entry-row__title a {
+  text-decoration: none;
+}
+
+.entry-row__title a:hover {
+  color: var(--amber);
+}
+
+.entry-row__title .muted {
+  font-size: var(--text-base);
+  font-weight: 400;
+}
+
+.entry-row__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.entry-row__rating,
+.entry-row__favorite {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+}
+
+.entry-row__rating {
+  color: var(--amber);
+}
+
+.entry-row__favorite {
+  color: var(--rose);
+}
+
+/* Critique : deux lignes au maximum dans la liste */
+.entry-row__review {
+  display: -webkit-box;
+  max-width: 60ch;
+  overflow: hidden;
+  color: var(--mist);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.entry-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+@media (max-width: 44rem) {
+  .entry-row {
+    grid-template-columns: 4rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .entry-row__actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
