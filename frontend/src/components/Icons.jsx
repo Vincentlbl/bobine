@@ -69,6 +69,23 @@ export function TrashIcon(props) {
   );
 }
 
+// "Pour toi" : une étincelle à quatre branches.
+export function SparkleIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4l1.8 6.2L20 12l-6.2 1.8L12 20l-1.8-6.2L4 12l6.2-1.8z" />
+    </Icon>
+  );
+}
+
+export function ChevronDownIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M6 9l6 6 6-6" />
+    </Icon>
+  );
+}
+
 // La bobine du logo : un disque percé de cinq trous.
 export function ReelIcon({ size = 28 }) {
   return (
