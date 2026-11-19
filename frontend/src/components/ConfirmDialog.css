@@ -2,7 +2,7 @@
   width: min(100% - 2rem, 26rem);
   padding: var(--space-5);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   background: var(--surface);
   color: var(--ivory);
 }
@@ -14,7 +14,7 @@
 }
 
 .confirm::backdrop {
-  background: rgb(8 8 20 / 0.7);
+  background: rgb(8 9 20 / 0.72);
   backdrop-filter: blur(3px);
 }
 

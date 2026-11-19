@@ -26,31 +26,32 @@
 
 .movie {
   display: grid;
-  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 20.5rem) minmax(0, 1fr);
   align-items: start;
-  gap: var(--space-7);
-  padding-top: var(--space-7);
+  gap: 3.5rem;
 }
 
 .movie__poster {
   position: sticky;
-  top: 5.5rem;
+  top: calc(var(--nav-height) + 1.5rem);
 }
 
 .movie__poster .poster {
-  border-radius: 10px;
-  box-shadow: 0 30px 70px rgb(6 6 18 / 0.7);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 30px 60px -24px rgb(0 0 0 / 0.8);
 }
 
 .movie__body {
   display: grid;
-  gap: var(--space-6);
+  gap: 2.5rem;
   min-width: 0;
 }
 
 .movie__header {
   display: grid;
-  gap: var(--space-4);
+  gap: 1.125rem;
 }
 
 .movie__facts,
@@ -63,14 +64,17 @@
 }
 
 .movie__facts {
-  gap: var(--space-2) var(--space-5);
-  font-size: var(--text-lg);
+  align-items: center;
+  gap: var(--space-2) 1.375rem;
+  color: var(--ivory-dim);
 }
 
 .movie__imdb {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 0.375rem;
+  color: var(--ivory);
+  font-weight: 600;
 }
 
 .movie__imdb svg {
@@ -78,11 +82,13 @@
 }
 
 .movie__imdb .muted {
-  font-size: var(--text-sm);
+  font-weight: 400;
 }
 
+/* Les genres suivent l'en-tête de près : on rattrape l'écart du bloc */
 .movie__genres {
   gap: var(--space-2);
+  margin-top: -1.375rem;
 }
 
 .movie__genre {
@@ -93,24 +99,26 @@
 
 .movie__details {
   display: grid;
-  gap: var(--space-5);
+  gap: 1.75rem;
 }
 
 .movie__plot {
-  max-width: 68ch;
-  font-size: 1.0625rem;
+  max-width: 62ch;
+  color: #e4e0d6;
+  font-size: 1.1875rem;
+  line-height: 1.6;
 }
 
 .movie__credits {
   display: grid;
-  gap: var(--space-3);
+  gap: 0.875rem;
   margin: 0;
 }
 
 .movie__credit {
   display: grid;
-  grid-template-columns: 7rem 1fr;
-  gap: var(--space-3);
+  grid-template-columns: 9.375rem minmax(0, 1fr);
+  gap: var(--space-5);
 }
 
 .movie__credit dt {
@@ -121,24 +129,68 @@
   margin: 0;
 }
 
+/* Mobile : petite affiche à côté du titre, puis tout le reste
+   en pleine largeur. "display: contents" fait remonter les enfants de
+   .movie__body dans la grille de .movie. */
 @media (max-width: 52rem) {
   .movie {
-    grid-template-columns: 1fr;
-    gap: var(--space-5);
-    padding-top: var(--space-5);
+    grid-template-columns: 7.375rem minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-5) var(--space-4);
   }
 
   .movie__poster {
     position: static;
-    width: min(60%, 15rem);
+  }
+
+  .movie__poster .poster {
+    border-radius: 6px;
+  }
+
+  .movie__body {
+    display: contents;
+  }
+
+  .movie__body > * {
+    grid-column: 1 / -1;
+  }
+
+  .movie__body > .movie__header {
+    grid-column: 2;
+    gap: 0.625rem;
+  }
+
+  .movie__header h1 {
+    font-size: clamp(2rem, 11vw, 2.875rem);
   }
 
   .movie__facts {
-    font-size: var(--text-base);
+    gap: 0 var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .movie__imdb .muted {
+    display: none;
+  }
+
+  .movie__genres {
+    margin-top: 0;
+  }
+
+  .movie__genre {
+    min-height: 2.5rem;
+  }
+
+  .movie__plot {
+    font-size: 1rem;
   }
 
   .movie__credit {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 2px;
+  }
+
+  .movie__credit dt {
+    font-size: 0.8125rem;
   }
 }

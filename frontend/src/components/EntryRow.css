@@ -7,11 +7,11 @@
 
 .entry-row {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-  align-items: center;
+  grid-template-columns: 5rem minmax(0, 1fr) auto;
+  align-items: start;
   gap: var(--space-5);
-  padding-block: var(--space-4);
-  border-bottom: 1px solid var(--line);
+  padding-block: 1.375rem;
+  border-bottom: 1px solid #1f2446;
   animation: row-in var(--medium) var(--ease-out);
 }
 
@@ -21,15 +21,21 @@
   }
 }
 
+.entry-row__poster .poster {
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+
 .entry-row__body {
   display: grid;
-  gap: var(--space-1);
+  gap: 0.625rem;
+  min-width: 0;
 }
 
 .entry-row__title {
-  font-size: var(--text-lg);
+  font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .entry-row__title a {
@@ -41,14 +47,14 @@
 }
 
 .entry-row__title .muted {
-  font-size: var(--text-base);
   font-weight: 400;
 }
 
 .entry-row__facts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
 }
 
@@ -57,23 +63,32 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-weight: 600;
 }
 
+/* La note, dans une pastille ambre */
 .entry-row__rating {
+  height: 1.625rem;
+  padding: 0 0.625rem;
+  border-radius: var(--radius-pill);
+  background: rgb(245 185 65 / 0.14);
   color: var(--amber);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.entry-row__favorite {
+.entry-row__favorite,
+.entry-row__favorite.button {
   color: var(--rose);
+  font-weight: 650;
 }
 
 /* Critique : deux lignes au maximum dans la liste */
 .entry-row__review {
   display: -webkit-box;
-  max-width: 60ch;
+  max-width: 68ch;
   overflow: hidden;
-  color: var(--mist);
+  color: var(--ivory-dim);
+  font-size: 0.9375rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -82,19 +97,83 @@
 .entry-row__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--space-1);
 }
 
+/* Mobile : les actions passent sous le texte, réduites à leurs icônes
+   (le libellé reste lu par les lecteurs d'écran). */
 @media (max-width: 44rem) {
   .entry-row {
-    grid-template-columns: 4rem minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-3) var(--space-4);
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    gap: 0 0.875rem;
+    padding-block: var(--space-4);
+  }
+
+  /* L'affiche occupe la hauteur du texte ET des actions */
+  .entry-row__poster {
+    grid-row: span 2;
+  }
+
+  .entry-row__body {
+    gap: 0.4375rem;
+  }
+
+  .entry-row__title {
+    font-size: 1.125rem;
+    line-height: 1.2;
+  }
+
+  .entry-row__facts {
+    gap: 0.375rem var(--space-3);
+    font-size: 0.8125rem;
+  }
+
+  .entry-row__facts .entry-row__favorite {
+    display: none;
+  }
+
+  .entry-row__rating {
+    height: 1.5rem;
+    padding: 0 var(--space-2);
+  }
+
+  .entry-row__review {
+    font-size: var(--text-sm);
+    line-height: 1.5;
   }
 
   .entry-row__actions {
-    grid-column: 1 / -1;
+    grid-column: 2;
     justify-content: flex-start;
+    gap: 2px;
+    margin-left: -0.75rem;
+  }
+
+  .entry-row__actions .button {
+    min-height: 2.75rem;
+  }
+
+  .entry-row__actions .button--quiet {
+    min-width: 2.75rem;
+    padding: 0;
+  }
+
+  .entry-row__actions .button:not(.button--quiet) {
+    margin-left: 0.75rem;
+  }
+
+  .entry-row__action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .entry-row__edit {
+    display: none;
   }
 }

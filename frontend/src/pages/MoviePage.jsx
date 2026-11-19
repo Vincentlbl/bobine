@@ -91,16 +91,17 @@ export default function MoviePage() {
                 <span className="muted">({formatCount(movie.imdbVotes)} votes)</span>
               </li>
             </ul>
-            <ul className="movie__genres">
-              {movie.genres.map((genre) => (
-                <li key={genre}>
-                  <Link to={`/?genre=${encodeURIComponent(genre)}`} className="chip movie__genre">
-                    {genreLabel(genre)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </header>
+
+          <ul className="movie__genres">
+            {movie.genres.map((genre) => (
+              <li key={genre}>
+                <Link to={`/?genre=${encodeURIComponent(genre)}`} className="chip movie__genre">
+                  {genreLabel(genre)}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
           <EntryPanel key={movie.id} movie={movie} />
 

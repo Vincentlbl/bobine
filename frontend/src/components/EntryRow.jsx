@@ -29,7 +29,7 @@ export default function EntryRow({ entry, busy, onMarkWatched, onToggleFavorite,
           <p className="entry-row__facts">
             {entry.rating !== null && (
               <span className="entry-row__rating">
-                <StarIcon size={15} filled /> {entry.rating}/10
+                <StarIcon size={14} filled /> {entry.rating}/10
               </span>
             )}
             {entry.watchedAt && <span className="muted">Vu le {formatDate(entry.watchedAt)}</span>}
@@ -54,9 +54,17 @@ export default function EntryRow({ entry, busy, onMarkWatched, onToggleFavorite,
               disabled={busy}
               onClick={() => onToggleFavorite(entry)}
             >
-              <HeartIcon size={16} filled={entry.favorite} /> Coup de cœur
+              <HeartIcon size={18} filled={entry.favorite} />
+              <span className="entry-row__action-label">
+                {/* Texte lu par les lecteurs d'écran quand seul le cœur est affiché (mobile) */}
+                Coup de cœur
+              </span>
             </button>
-            <Link to={movieUrl} state={{ movie: entry.movie }} className="button button--small button--quiet">
+            <Link
+              to={movieUrl}
+              state={{ movie: entry.movie }}
+              className="button button--small button--quiet entry-row__edit"
+            >
               Modifier
             </Link>
           </>
@@ -71,7 +79,8 @@ export default function EntryRow({ entry, busy, onMarkWatched, onToggleFavorite,
           disabled={busy}
           onClick={() => onDelete(entry)}
         >
-          <TrashIcon size={16} /> Retirer
+          <TrashIcon size={18} />
+          <span className="entry-row__action-label">Retirer</span>
         </button>
       </div>
     </li>
