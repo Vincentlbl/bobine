@@ -1,0 +1,39 @@
+.reco__header {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-5) var(--space-6);
+}
+
+.reco__intro {
+  max-width: 46rem;
+  color: var(--mist);
+  font-size: var(--text-lg);
+  line-height: 1.4;
+}
+
+.reco__intro strong {
+  color: var(--ivory);
+  font-weight: 700;
+}
+
+/* Sous chaque affiche : le score, puis les genres qui expliquent le choix */
+.reco__why {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  color: var(--mist);
+  font-size: var(--text-sm);
+}
+
+.reco__score {
+  flex: none;
+  color: var(--amber);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.reco__genres {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
