@@ -1,0 +1,19 @@
+.auth {
+  max-width: 27rem;
+  padding-top: var(--space-8);
+}
+
+.auth__intro {
+  margin-top: var(--space-3);
+}
+
+.auth__form {
+  display: grid;
+  gap: var(--space-5);
+  margin-block: var(--space-6) var(--space-5);
+}
+
+.auth__switch a {
+  color: var(--amber);
+  font-weight: 600;
+}
