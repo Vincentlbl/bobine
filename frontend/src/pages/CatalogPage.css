@@ -1,0 +1,122 @@
+.catalog__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-5) var(--space-3);
+  border-bottom: 2px solid var(--line);
+  color: var(--mist);
+  transition:
+    border-color var(--medium),
+    color var(--medium);
+}
+
+.catalog__search:focus-within {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.catalog__search svg {
+  flex: none;
+}
+
+/* Le champ de recherche est LE titre de la page : on tape en grand */
+.catalog__search-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ivory);
+  caret-color: var(--amber);
+}
+
+.catalog__search-input::placeholder {
+  color: #4b4979;
+  opacity: 1;
+}
+
+.catalog__search-input:focus-visible {
+  outline: none;
+}
+
+.catalog__search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.catalog__filters {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  margin-block: var(--space-5);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-right: auto;
+}
+
+.chip {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--mist);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--fast),
+    border-color var(--fast),
+    color var(--fast);
+}
+
+.chip:hover {
+  border-color: var(--mist);
+  color: var(--ivory);
+}
+
+.chip--toggle {
+  border-style: dashed;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--ivory);
+  border-color: var(--ivory);
+  color: var(--night-deep);
+}
+
+.catalog__sort {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.catalog__sort .input {
+  min-height: 2.25rem;
+  padding-block: 0;
+}
+
+.catalog__count {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.catalog__more {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-7);
+}
+
+@media (max-width: 44rem) {
+  .catalog__filters {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
