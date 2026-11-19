@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { fetchMovie } from '../api/movies';
+import EntryPanel from '../components/EntryPanel';
 import Poster from '../components/Poster';
 import { StarIcon } from '../components/Icons';
 import { formatCount, formatDate, formatRating, formatRuntime } from '../utils/format';
@@ -100,6 +101,8 @@ export default function MoviePage() {
               ))}
             </ul>
           </header>
+
+          <EntryPanel key={movie.id} movie={movie} />
 
           {details ? (
             <section className="movie__details">
