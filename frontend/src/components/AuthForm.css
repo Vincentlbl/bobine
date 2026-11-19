@@ -1,19 +1,129 @@
+/* Bureau : le décor à gauche, le formulaire à droite.
+   La page occupe toute la hauteur sous la barre de navigation. */
 .auth {
-  max-width: 27rem;
-  padding-top: var(--space-8);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 35rem);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+.auth__aside {
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--line);
+  background: var(--night-deep);
+}
+
+.auth__mosaic {
+  position: absolute;
+  top: -7.5rem;
+  right: -5rem;
+  left: -5rem;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+  opacity: 0.6;
+  transform: rotate(-7deg);
+}
+
+/* Un dégradé fond la mosaïque dans le bas du panneau */
+.auth__aside::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(10 12 29 / 0.15) 0%,
+    rgb(10 12 29 / 0.7) 55%,
+    var(--night-deep) 92%
+  );
+}
+
+.auth__quote {
+  position: absolute;
+  right: var(--space-7);
+  bottom: 2.75rem;
+  left: var(--space-7);
+  z-index: 1;
+  max-width: 30ch;
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: 1.875rem;
+  line-height: 1.05;
+}
+
+.auth__panel {
+  display: grid;
+  align-content: center;
+  gap: 1.75rem;
+  padding: 3.5rem clamp(1.25rem, 5vw, 4.5rem);
+}
+
+.auth__heading {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.auth__heading h1 {
+  font-size: clamp(3.25rem, 2rem + 4vw, 5rem);
 }
 
 .auth__intro {
-  margin-top: var(--space-3);
+  font-size: 1.0625rem;
 }
 
 .auth__form {
   display: grid;
-  gap: var(--space-5);
-  margin-block: var(--space-6) var(--space-5);
+  gap: 1.25rem;
+}
+
+.auth__form .input {
+  min-height: 3.125rem;
+}
+
+.auth__form .button {
+  min-height: 3.125rem;
+  margin-top: var(--space-1);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.auth__switch {
+  font-size: 0.9375rem;
 }
 
 .auth__switch a {
   color: var(--amber);
-  font-weight: 600;
+  font-weight: 650;
+}
+
+.auth__switch a:hover {
+  color: var(--amber-strong);
+}
+
+/* Écran étroit : plus de décor, le formulaire seul */
+@media (max-width: 56rem) {
+  .auth {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .auth__aside {
+    display: none;
+  }
+
+  .auth__panel {
+    align-content: start;
+    gap: var(--space-5);
+    width: min(100%, 30rem);
+    margin-inline: auto;
+    padding: 1.75rem 1.25rem var(--space-7);
+  }
+
+  .auth__heading h1 {
+    font-size: 3.25rem;
+  }
+
+  .auth__intro {
+    font-size: 1rem;
+  }
 }

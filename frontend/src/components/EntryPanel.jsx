@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { todayISO } from '../utils/format';
 import ConfirmDialog from './ConfirmDialog';
-import StarRating from './StarRating';
+import RatingPips from './RatingPips';
 import { BookmarkIcon, CheckIcon, HeartIcon, TrashIcon } from './Icons';
 import './EntryPanel.css';
 
@@ -20,6 +20,7 @@ export default function EntryPanel({ movie }) {
   const [entry, setEntry] = useState(undefined);
   const [busy, setBusy] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [confirmingWatchlist, setConfirmingWatchlist] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -69,8 +70,16 @@ export default function EntryPanel({ movie }) {
     update({ status: 'watched', watchedAt: todayISO() }, 'Marqué comme vu.');
 
   // Un film "à voir" n'a ni note ni date : on les efface en même temps.
-  const moveToWatchlist = () =>
+  function moveToWatchlist() {
+    setConfirmingWatchlist(false);
     update({ status: 'watchlist', rating: null, watchedAt: null }, 'Remis dans ta watchlist.');
+  }
+
+  // Clic sur "À voir" : si une note existe, on prévient avant de l'effacer.
+  function requestWatchlist() {
+    if (entry.rating !== null) setConfirmingWatchlist(true);
+    else moveToWatchlist();
+  }
 
   async function remove() {
     setConfirmingDelete(false);
@@ -83,7 +92,7 @@ export default function EntryPanel({ movie }) {
   // --- Visiteur non connecté ---
   if (!user) {
     return (
-      <section className="entry-panel" aria-labelledby="entry-panel-title">
+      <section className="entry-panel entry-panel--simple" aria-labelledby="entry-panel-title">
         <h2 id="entry-panel-title">Mon journal</h2>
         <p className="muted">Connecte-toi pour garder ce film dans ta watchlist ou le noter.</p>
         <div className="entry-panel__actions">
@@ -101,7 +110,7 @@ export default function EntryPanel({ movie }) {
   // --- Chargement de l'entrée ---
   if (entry === undefined) {
     return (
-      <section className="entry-panel" aria-busy="true">
+      <section className="entry-panel entry-panel--simple" aria-busy="true">
         <h2>Mon journal</h2>
         <div className="skeleton" style={{ height: '2.75rem', maxWidth: '22rem' }} />
       </section>
@@ -111,7 +120,7 @@ export default function EntryPanel({ movie }) {
   // --- Film absent du journal : création ---
   if (entry === null) {
     return (
-      <section className="entry-panel" aria-labelledby="entry-panel-title">
+      <section className="entry-panel entry-panel--simple" aria-labelledby="entry-panel-title">
         <h2 id="entry-panel-title">Mon journal</h2>
         <p className="muted">Ce film n'est pas encore dans ton journal.</p>
         <div className="entry-panel__actions">
@@ -129,76 +138,92 @@ export default function EntryPanel({ movie }) {
   // --- Film présent : consultation et modification ---
   const isWatched = entry.status === 'watched';
 
+  // Le bloc prend la forme d'un ticket de cinéma : un talon (titre + statut),
+  // une ligne de découpe en pointillés, puis le corps du ticket.
   return (
-    <section className="entry-panel" aria-labelledby="entry-panel-title">
-      <h2 id="entry-panel-title">Mon journal</h2>
+    <section className="entry-panel entry-panel--ticket" aria-labelledby="entry-panel-title">
+      <div className="entry-panel__stub">
+        <h2 id="entry-panel-title">Mon journal</h2>
 
-      <p className={`entry-panel__status entry-panel__status--${entry.status}`}>
-        {isWatched ? <CheckIcon size={18} /> : <BookmarkIcon size={18} />}
-        {isWatched ? 'Tu as vu ce film' : 'Dans ta watchlist'}
-      </p>
-
-      {isWatched ? (
-        <>
-          <StarRating
-            value={entry.rating}
+        {/* Sélecteur de statut : le bouton enfoncé est le statut actuel */}
+        <div className="segmented" role="group" aria-label="Statut du film">
+          <button
+            type="button"
+            className="segmented__option segmented__option--watchlist"
+            aria-pressed={!isWatched}
             disabled={busy}
-            onChange={(rating) =>
-              update({ rating }, rating ? 'Note enregistrée.' : 'Note retirée.')
-            }
-          />
-
-          <div className="entry-panel__row">
-            <label className="field entry-panel__date">
-              <span className="field__label">Vu le</span>
-              <input
-                type="date"
-                className="input"
-                max={todayISO()}
-                value={entry.watchedAt || ''}
-                disabled={busy}
-                onChange={(event) =>
-                  update({ watchedAt: event.target.value || null }, 'Date enregistrée.')
-                }
-              />
-            </label>
-
-            <button
-              type="button"
-              className={`button entry-panel__favorite ${entry.favorite ? 'entry-panel__favorite--on' : ''}`}
-              aria-pressed={entry.favorite}
-              disabled={busy}
-              onClick={() =>
-                update(
-                  { favorite: !entry.favorite },
-                  entry.favorite ? 'Retiré de tes coups de cœur.' : 'Ajouté à tes coups de cœur.'
-                )
-              }
-            >
-              <HeartIcon filled={entry.favorite} /> Coup de cœur
-            </button>
-          </div>
-
-          <ReviewForm
-            initialReview={entry.review}
+            onClick={isWatched ? requestWatchlist : undefined}
+          >
+            <BookmarkIcon size={17} /> À voir
+          </button>
+          <button
+            type="button"
+            className="segmented__option segmented__option--watched"
+            aria-pressed={isWatched}
             disabled={busy}
-            onSave={(review) => update({ review }, 'Critique enregistrée.')}
-          />
-        </>
-      ) : (
-        <div className="entry-panel__actions">
-          <button type="button" className="button button--primary" onClick={markWatched} disabled={busy}>
-            <CheckIcon /> Marquer comme vu
+            onClick={isWatched ? undefined : markWatched}
+          >
+            <CheckIcon size={17} /> Vu
           </button>
         </div>
-      )}
+      </div>
+
+      <div className="entry-panel__body">
+        {isWatched ? (
+          <>
+            <RatingPips
+              value={entry.rating}
+              disabled={busy}
+              onChange={(rating) =>
+                update({ rating }, rating ? 'Note enregistrée.' : 'Note retirée.')
+              }
+            />
+
+            <div className="entry-panel__row">
+              <label className="field entry-panel__date">
+                <span className="field__label">Vu le</span>
+                <input
+                  type="date"
+                  className="input"
+                  max={todayISO()}
+                  value={entry.watchedAt || ''}
+                  disabled={busy}
+                  onChange={(event) =>
+                    update({ watchedAt: event.target.value || null }, 'Date enregistrée.')
+                  }
+                />
+              </label>
+
+              <button
+                type="button"
+                className={`button entry-panel__favorite ${entry.favorite ? 'entry-panel__favorite--on' : ''}`}
+                aria-pressed={entry.favorite}
+                disabled={busy}
+                onClick={() =>
+                  update(
+                    { favorite: !entry.favorite },
+                    entry.favorite ? 'Retiré de tes coups de cœur.' : 'Ajouté à tes coups de cœur.'
+                  )
+                }
+              >
+                <HeartIcon filled={entry.favorite} /> Coup de cœur
+              </button>
+            </div>
+
+            <ReviewForm
+              initialReview={entry.review}
+              disabled={busy}
+              onSave={(review) => update({ review }, 'Critique enregistrée.')}
+            />
+          </>
+        ) : (
+          <p className="muted">
+            Dans ta watchlist. Passe-le en « Vu » pour le noter et écrire ta critique.
+          </p>
+        )}
+      </div>
 
       <div className="entry-panel__footer">
-        {isWatched && (
-          <button type="button" className="button button--small button--quiet" onClick={moveToWatchlist} disabled={busy}>
-            Remettre dans ma watchlist
-          </button>
-        )}
         <button
           type="button"
           className="button button--small button--quiet button--danger"
@@ -208,6 +233,15 @@ export default function EntryPanel({ movie }) {
           <TrashIcon size={16} /> Retirer de mon journal
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmingWatchlist}
+        title="Remettre ce film dans ta watchlist ?"
+        message="Un film « à voir » n’a ni note ni date : ta note et la date de visionnage seront effacées. Ta critique est conservée."
+        confirmLabel="Remettre à voir"
+        onConfirm={moveToWatchlist}
+        onCancel={() => setConfirmingWatchlist(false)}
+      />
 
       <ConfirmDialog
         open={confirmingDelete}

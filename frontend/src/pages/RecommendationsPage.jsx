@@ -14,6 +14,10 @@ function listGenres(genres) {
   return `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}`;
 }
 
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 // Pour toi : des films choisis par l'API d'après le journal de l'utilisateur.
 // Tout le calcul est fait côté serveur ; cette page ne fait qu'afficher.
 export default function RecommendationsPage() {
@@ -82,10 +86,18 @@ export default function RecommendationsPage() {
             <li key={item.movie.id}>
               <MovieCard movie={item.movie} />
               {item.score !== null && (
-                <p className="reco__why">
-                  <span className="reco__score">{item.score} %</span>
-                  <span className="reco__genres">{listGenres(item.matchedGenres)}</span>
-                </p>
+                <div className="reco__why">
+                  <p className="reco__match">
+                    <span className="reco__score">
+                      {item.score} %<span className="visually-hidden"> de correspondance</span>
+                    </span>
+                    {/* La jauge répète le chiffre : elle est purement décorative */}
+                    <span className="reco__gauge" aria-hidden="true">
+                      <span style={{ width: `${item.score}%` }} />
+                    </span>
+                  </p>
+                  <p className="reco__genres">{capitalize(listGenres(item.matchedGenres))}</p>
+                </div>
               )}
             </li>
           ))}

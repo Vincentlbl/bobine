@@ -167,30 +167,44 @@ export default function JournalPage() {
   );
 }
 
-// Les statistiques, écrites comme une phrase plutôt que comme un tableau de bord.
+// Les statistiques du journal, en quatre colonnes : un grand chiffre
+// et son libellé en dessous.
 function JournalSummary({ stats }) {
   if (stats.watchedCount === 0 && stats.watchlistCount === 0) {
-    return <p className="journal__summary muted">Ton journal est encore vide.</p>;
+    return <p className="journal__empty muted">Ton journal est encore vide.</p>;
   }
 
-  const plural = (count, singular, pluralForm) => `${count} ${count > 1 ? pluralForm : singular}`;
+  const genres = stats.topGenres.slice(0, 3).map((item) => genreLabel(item.genre));
+  // "Drame, policier, science-fiction" : majuscule au premier seulement.
+  const genreList = genres.map((label, index) => (index === 0 ? label : label.toLowerCase())).join(', ');
 
   return (
-    <p className="journal__summary">
-      <strong>{plural(stats.watchedCount, 'film vu', 'films vus')}</strong>,{' '}
-      {stats.watchlistCount} à voir
-      {stats.averageRating !== null && (
-        <>
-          , note moyenne <strong>{formatRating(stats.averageRating)}/10</strong>
-        </>
-      )}
-      .
-      {stats.topGenres.length > 0 && (
-        <>
-          {' '}
-          Tu regardes surtout : {stats.topGenres.slice(0, 3).map((item) => genreLabel(item.genre).toLowerCase()).join(', ')}.
-        </>
-      )}
-    </p>
+    <dl className="journal__stats">
+      <div className="journal__stat">
+        <dt>{stats.watchedCount > 1 ? 'films vus' : 'film vu'}</dt>
+        <dd>{stats.watchedCount}</dd>
+      </div>
+      <div className="journal__stat journal__stat--watchlist">
+        <dt>à voir</dt>
+        <dd>{stats.watchlistCount}</dd>
+      </div>
+      <div className="journal__stat journal__stat--rating">
+        <dt>note moyenne</dt>
+        <dd>
+          {stats.averageRating !== null ? (
+            <>
+              {formatRating(stats.averageRating)}
+              <span className="journal__stat-unit">/10</span>
+            </>
+          ) : (
+            '–'
+          )}
+        </dd>
+      </div>
+      <div className="journal__stat journal__stat--genres">
+        <dt>genres les plus vus</dt>
+        <dd>{genreList || '–'}</dd>
+      </div>
+    </dl>
   );
 }

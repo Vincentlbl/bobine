@@ -1,0 +1,126 @@
+.rating {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.rating__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.rating__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.rating__value {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  min-width: 5.75rem;
+}
+
+.rating__number {
+  color: var(--amber);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: 4.25rem;
+  line-height: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.rating__max {
+  color: var(--mist);
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.rating__pips {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.rating__pip {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 3.25rem;
+  padding: 0 0 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--night-deep);
+  color: var(--mist);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--fast),
+    border-color var(--fast),
+    color var(--fast);
+}
+
+.rating__pip--on {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: var(--night-deep);
+}
+
+.rating__pip:disabled {
+  cursor: wait;
+}
+
+/* Mobile : le chiffre remonte à droite du libellé, et les dix pastilles
+   occupent toute la largeur. */
+@media (max-width: 44rem) {
+  .rating {
+    position: relative;
+    gap: var(--space-3);
+  }
+
+  .rating__head {
+    align-items: flex-end;
+    min-height: 2.25rem;
+  }
+
+  .rating__head .field__hint {
+    display: none;
+  }
+
+  .rating__value {
+    position: absolute;
+    top: 0;
+    right: 0;
+    align-items: flex-end;
+    height: 2.25rem;
+    min-width: 0;
+  }
+
+  .rating__number {
+    font-size: 2.75rem;
+  }
+
+  .rating__max {
+    line-height: 1;
+  }
+
+  .rating__max {
+    font-size: var(--text-base);
+  }
+
+  .rating__pips {
+    gap: 4px;
+  }
+
+  .rating__pip {
+    height: 3rem;
+    padding-bottom: 6px;
+    border-radius: 5px;
+    font-size: 0.8125rem;
+  }
+}

@@ -2,25 +2,28 @@
    utilisées dans l'application sont définies ici, une seule fois. */
 :root {
   /* Couleurs : la salle obscure (indigo nuit) et la lumière du projecteur (ambre) */
-  --night: #16162a; /* fond de page */
-  --night-deep: #0f0f1f; /* zones en retrait */
-  --surface: #212039; /* cartes, champs */
-  --surface-raised: #2b2a47; /* survol */
-  --line: #36345a; /* bordures */
-  --ivory: #efe9dc; /* texte principal */
-  --mist: #a09cb8; /* texte secondaire */
-  --amber: #f5c15c; /* action principale, notes */
-  --amber-strong: #ffd27a;
-  --rose: #ec6a82; /* coup de cœur, suppression, erreurs */
-  --periwinkle: #93a6f7; /* "à voir" */
+  --night: #10132a; /* fond de page */
+  --night-deep: #0a0c1d; /* champs, zones en retrait */
+  --surface: #191d3a; /* cartes */
+  --surface-raised: #232848; /* survol */
+  --line: #2d3359; /* séparateurs */
+  --line-strong: #3a4170; /* bordures des contrôles (boutons, champs) */
+  --ivory: #f2ecdf; /* texte principal */
+  --ivory-dim: #d5d3e2; /* texte courant un peu en retrait */
+  --mist: #a7a9c6; /* texte secondaire */
+  --amber: #f5b941; /* action principale, notes */
+  --amber-strong: #ffcd66; /* survol de l'action */
+  --rose: #f27b92; /* coup de cœur, suppression, erreurs */
+  --periwinkle: #9db0ff; /* "à voir" */
 
   /* Typographie : une seule famille, deux largeurs */
   --font: 'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.25rem;
-  --text-xl: 1.75rem;
-  --text-display: clamp(2.25rem, 1.4rem + 4vw, 4.25rem);
+  --text-xl: 1.875rem;
+  --text-display: clamp(3.25rem, 1.75rem + 6.4vw, 6.5rem); /* grands titres de page */
+  --text-search: clamp(2.6rem, 1.3rem + 5.6vw, 5.5rem); /* champ de recherche du catalogue */
 
   /* Espacements, rayons */
   --space-1: 0.25rem;
@@ -33,8 +36,11 @@
   --space-8: 4.5rem;
   --radius-poster: 6px;
   --radius-control: 10px;
+  --radius-card: 16px;
   --radius-pill: 999px;
-  --page-width: 76rem;
+  --page-width: 74rem;
+  --nav-height: 4.25rem;
+  --tabbar-height: 4rem; /* barre d'onglets du bas, sur mobile */
 
   /* Mouvements */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

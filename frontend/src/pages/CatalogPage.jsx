@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { fetchGenres } from '../api/movies';
 import MovieResults from '../components/MovieResults';
-import { SearchIcon } from '../components/Icons';
+import { ChevronDownIcon, SearchIcon } from '../components/Icons';
 import { genreLabel } from '../utils/genres';
 import './CatalogPage.css';
 
@@ -71,7 +71,7 @@ export default function CatalogPage() {
         <label htmlFor="movie-search" className="visually-hidden">
           Chercher un film par son titre
         </label>
-        <SearchIcon size={34} />
+        <SearchIcon size={46} />
         <input
           id="movie-search"
           type="search"
@@ -118,17 +118,21 @@ export default function CatalogPage() {
 
         <label className="catalog__sort">
           <span className="muted">Trier par</span>
-          <select
-            className="input"
-            value={sort}
-            onChange={(event) => updateParam('sort', event.target.value)}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          {/* La flèche du navigateur est remplacée par notre propre chevron */}
+          <span className="select">
+            <select
+              className="input"
+              value={sort}
+              onChange={(event) => updateParam('sort', event.target.value)}
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon size={18} />
+          </span>
         </label>
       </div>
 

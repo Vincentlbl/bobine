@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { fetchMovies } from '../api/movies';
 import { useToast } from '../context/ToastContext';
+import Poster from './Poster';
 import './AuthForm.css';
 
 const PASSWORD_MIN_LENGTH = 8;
@@ -15,6 +17,7 @@ const TEXTS = {
     switchQuestion: 'Pas encore de compte ?',
     switchLabel: 'Créer un compte',
     switchTo: '/inscription',
+    aside: 'Ton journal reste privé : personne d’autre ne le voit.',
   },
   register: {
     title: 'Créer ton journal',
@@ -24,6 +27,7 @@ const TEXTS = {
     switchQuestion: 'Déjà un compte ?',
     switchLabel: 'Se connecter',
     switchTo: '/connexion',
+    aside: 'Garde la trace de chaque film que tu vois.',
   },
 };
 
@@ -59,65 +63,104 @@ export default function AuthForm({ mode }) {
   }
 
   return (
-    <div className="page auth">
-      <h1>{texts.title}</h1>
-      <p className="muted auth__intro">{texts.intro}</p>
+    <div className="auth">
+      <AuthAside text={texts.aside} />
 
-      <form className="auth__form" onSubmit={handleSubmit}>
-        {errorMessage && (
-          <p className="form-error" role="alert">
-            {errorMessage}
-          </p>
-        )}
-
-        <div className="field">
-          <label htmlFor="email" className="field__label">
-            Adresse email
-          </label>
-          <input
-            id="email"
-            type="email"
-            className="input"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
+      <div className="auth__panel">
+        <div className="auth__heading">
+          <h1>{texts.title}</h1>
+          <p className="muted auth__intro">{texts.intro}</p>
         </div>
 
-        <div className="field">
-          <label htmlFor="password" className="field__label">
-            Mot de passe
-          </label>
-          <input
-            id="password"
-            type="password"
-            className="input"
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            required
-            minLength={mode === 'register' ? PASSWORD_MIN_LENGTH : undefined}
-            aria-describedby={mode === 'register' ? 'password-hint' : undefined}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-          {mode === 'register' && (
-            <span id="password-hint" className="field__hint">
-              {PASSWORD_MIN_LENGTH} caractères au minimum.
-            </span>
+        <form className="auth__form" onSubmit={handleSubmit}>
+          {errorMessage && (
+            <p className="form-error" role="alert">
+              {errorMessage}
+            </p>
           )}
-        </div>
 
-        <button type="submit" className="button button--primary" disabled={submitting}>
-          {submitting ? 'Un instant…' : texts.submit}
-        </button>
-      </form>
+          <div className="field">
+            <label htmlFor="email" className="field__label">
+              Adresse email
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="input"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </div>
 
-      <p className="auth__switch muted">
-        {texts.switchQuestion}{' '}
-        <Link to={texts.switchTo} state={{ from }}>
-          {texts.switchLabel}
-        </Link>
-      </p>
+          <div className="field">
+            <label htmlFor="password" className="field__label">
+              Mot de passe
+            </label>
+            <input
+              id="password"
+              type="password"
+              className="input"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              required
+              minLength={mode === 'register' ? PASSWORD_MIN_LENGTH : undefined}
+              aria-describedby={mode === 'register' ? 'password-hint' : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            {mode === 'register' && (
+              <span id="password-hint" className="field__hint">
+                {PASSWORD_MIN_LENGTH} caractères au minimum.
+              </span>
+            )}
+          </div>
+
+          <button type="submit" className="button button--primary" disabled={submitting}>
+            {submitting ? 'Un instant…' : texts.submit}
+          </button>
+        </form>
+
+        <p className="auth__switch muted">
+          {texts.switchQuestion}{' '}
+          <Link to={texts.switchTo} state={{ from }}>
+            {texts.switchLabel}
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const MOSAIC_SIZE = 20;
+
+// Décor de la page (bureau uniquement) : une mosaïque d'affiches des films
+// les plus populaires, inclinée et assombrie, avec une phrase par-dessus.
+// Purement décoratif : caché des lecteurs d'écran, et si le catalogue ne
+// répond pas, le panneau reste simplement sombre.
+function AuthAside({ text }) {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    let ignore = false;
+    fetchMovies({ sort: 'popular', page: 1, limit: MOSAIC_SIZE })
+      .then((data) => {
+        if (!ignore) setMovies(data.items);
+      })
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  return (
+    <div className="auth__aside" aria-hidden="true">
+      <div className="auth__mosaic">
+        {movies.map((movie) => (
+          <Poster key={movie.id} movie={movie} width={185} />
+        ))}
+      </div>
+      <p className="auth__quote">{text}</p>
     </div>
   );
 }

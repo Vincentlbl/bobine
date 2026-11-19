@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { ReelIcon } from './Icons';
+import { BookmarkIcon, ReelIcon, SearchIcon, SparkleIcon } from './Icons';
 import './Layout.css';
 
 // Cadre commun à toutes les pages : barre de navigation, contenu, pied de page.
@@ -25,16 +25,25 @@ export default function Layout() {
       <header className="navbar">
         <div className="navbar__inner">
           <Link to="/" className="navbar__logo" aria-label="Bobine, accueil">
-            <ReelIcon />
+            <ReelIcon size={30} />
             <span>Bobine</span>
           </Link>
 
           <nav className="navbar__links" aria-label="Navigation principale">
+            {/* Les icônes ne s'affichent que sur mobile, où ce menu
+                devient une barre d'onglets en bas de l'écran. */}
             <NavLink to="/" end>
+              <SearchIcon size={22} />
               Films
             </NavLink>
-            <NavLink to="/journal">Mon journal</NavLink>
-            <NavLink to="/pour-toi">Pour toi</NavLink>
+            <NavLink to="/journal">
+              <BookmarkIcon size={22} />
+              Mon journal
+            </NavLink>
+            <NavLink to="/pour-toi">
+              <SparkleIcon size={22} />
+              Pour toi
+            </NavLink>
           </nav>
 
           <div className="navbar__account">
