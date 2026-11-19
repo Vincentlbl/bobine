@@ -341,4 +341,4 @@ Un navigateur ne comprend ni le JSX ni les imports de paquets npm. Il faut donc 
 
 ---
 
-Version rendue : tag `v1.0.0`, commit `<SHA à compléter au moment du gel>`.
+Version rendue : tag `v1.0.0`.
