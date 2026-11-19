@@ -1,0 +1,5 @@
+# Les scripts exécutés dans les conteneurs Linux doivent garder des fins de
+# ligne Unix, même si le dépôt est cloné sous Windows.
+*.sh text eol=lf
+database/init/* text eol=lf
+*.gz binary

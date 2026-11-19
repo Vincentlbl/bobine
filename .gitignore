@@ -1,0 +1,15 @@
+# Dépendances et fichiers générés
+node_modules/
+dist/
+coverage/
+
+# Secrets : seul .env.example est versionné
+.env
+.env.*
+!.env.example
+
+# Divers
+.DS_Store
+*.log
+.vscode/
+.idea/
