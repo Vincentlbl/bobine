@@ -34,6 +34,7 @@ export default function Layout() {
               Films
             </NavLink>
             <NavLink to="/journal">Mon journal</NavLink>
+            <NavLink to="/pour-toi">Pour toi</NavLink>
           </nav>
 
           <div className="navbar__account">
