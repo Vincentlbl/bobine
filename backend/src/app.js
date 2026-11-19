@@ -4,6 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 const authRoutes = require('./routes/auth.routes');
+const catalogRoutes = require('./routes/catalog.routes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 // Ce fichier construit l'application Express SANS ouvrir de port :
@@ -24,6 +25,7 @@ const openapiDocument = YAML.load(path.join(__dirname, '..', 'openapi.yaml'));
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 app.use('/api/auth', authRoutes);
+app.use('/api', catalogRoutes);
 
 // Avec Express 5, une erreur levée dans un contrôleur async arrive
 // automatiquement ici : pas besoin de try/catch dans chaque route.
