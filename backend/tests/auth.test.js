@@ -1,9 +1,12 @@
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 const {
   app,
   startTestDatabases,
   resetAppData,
   stopTestDatabases,
+  registerUser,
+  bearer,
 } = require('./helpers');
 
 beforeAll(startTestDatabases);
@@ -69,5 +72,49 @@ describe('POST /api/auth/login', () => {
     expect(unknownEmail.status).toBe(401);
     expect(wrongPassword.body).toEqual(unknownEmail.body);
     expect(wrongPassword.body.error.code).toBe('UNAUTHORIZED');
+  });
+});
+
+describe('Protection des routes privées par le jeton Bearer', () => {
+  test('sans jeton : 401', async () => {
+    const response = await request(app).get('/api/entries');
+
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  test('jeton falsifié : 401', async () => {
+    const { token } = await registerUser('alice@example.test');
+    const forgedToken = token.slice(0, -3) + 'abc'; // signature modifiée
+
+    const response = await request(app).get('/api/entries').set(bearer(forgedToken));
+
+    expect(response.status).toBe(401);
+  });
+
+  test('jeton signé avec une autre clé : 401', async () => {
+    const token = jwt.sign({ sub: '64b000000000000000000001' }, 'une-autre-cle');
+
+    const response = await request(app).get('/api/entries').set(bearer(token));
+
+    expect(response.status).toBe(401);
+  });
+
+  test('jeton expiré : 401', async () => {
+    const { user } = await registerUser('alice@example.test');
+    const expiredToken = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: -10 });
+
+    const response = await request(app).get('/api/entries').set(bearer(expiredToken));
+
+    expect(response.status).toBe(401);
+  });
+
+  test('jeton valide : accès autorisé', async () => {
+    const { token } = await registerUser('alice@example.test');
+
+    const response = await request(app).get('/api/entries').set(bearer(token));
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ items: [] });
   });
 });
