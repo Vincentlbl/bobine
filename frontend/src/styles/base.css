@@ -16,7 +16,7 @@ body {
   min-height: 100vh;
   /* Halo discret en haut de page : la lumière du projecteur dans la salle obscure */
   background:
-    radial-gradient(70rem 26rem at 28% -8rem, rgb(245 193 92 / 0.1), transparent 70%) no-repeat,
+    radial-gradient(56rem 21rem at 26% -9rem, rgb(245 185 65 / 0.13), transparent 70%) no-repeat,
     var(--night);
   color: var(--ivory);
   font-family: var(--font);
@@ -39,7 +39,7 @@ h2,
 .display {
   font-stretch: 75%;
   font-weight: 800;
-  line-height: 1.02;
+  line-height: 1;
   letter-spacing: -0.01em;
   text-wrap: balance;
 }
@@ -47,6 +47,8 @@ h2,
 h1,
 .display {
   font-size: var(--text-display);
+  line-height: 0.88;
+  letter-spacing: -0.015em;
 }
 
 h2 {
@@ -55,6 +57,12 @@ h2 {
 
 a {
   color: inherit;
+  text-underline-offset: 3px;
+}
+
+::placeholder {
+  color: #7f81a3;
+  opacity: 1;
 }
 
 img {
@@ -99,11 +107,12 @@ textarea {
   gap: var(--space-2);
   min-height: 2.75rem;
   padding: 0 var(--space-5);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-control);
   background: var(--surface);
   color: var(--ivory);
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 650;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -116,7 +125,6 @@ textarea {
 
 .button:hover {
   background: var(--surface-raised);
-  border-color: var(--mist);
 }
 
 .button:active {
@@ -154,8 +162,8 @@ textarea {
 }
 
 .button--danger:hover {
-  background: transparent;
-  border-color: var(--rose);
+  background: rgb(242 123 146 / 0.1);
+  border-color: transparent;
   color: var(--rose);
 }
 
@@ -173,7 +181,8 @@ textarea {
 }
 
 .field__label {
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 650;
 }
 
 .field__hint {
@@ -183,22 +192,26 @@ textarea {
 
 .input {
   width: 100%;
-  min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line);
+  min-height: 3rem;
+  padding: var(--space-2) 0.875rem;
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-control);
   background: var(--night-deep);
-  transition: border-color var(--fast);
+  transition:
+    border-color var(--fast),
+    box-shadow var(--fast);
 }
 
 .input:hover {
   border-color: var(--mist);
 }
 
+/* Champ actif : bordure ambre et halo, à la place du contour par défaut */
 .input:focus-visible {
-  outline-offset: 0;
+  outline: none;
   border-color: var(--amber);
   border-radius: var(--radius-control);
+  box-shadow: 0 0 0 3px rgb(245 185 65 / 0.22);
 }
 
 textarea.input {
@@ -211,7 +224,7 @@ textarea.input {
   padding: var(--space-3) var(--space-4);
   border-left: 3px solid var(--rose);
   border-radius: 4px;
-  background: rgb(236 106 130 / 0.12);
+  background: rgb(242 123 146 / 0.12);
 }
 
 /* ---------- États de page ---------- */
@@ -219,7 +232,7 @@ textarea.input {
 .page {
   width: min(100% - 2.5rem, var(--page-width));
   margin-inline: auto;
-  padding-block: var(--space-6) var(--space-8);
+  padding-block: clamp(1.75rem, 4.5vw, 3.5rem) var(--space-8);
 }
 
 .empty-state {
