@@ -1,0 +1,90 @@
+# Environnement de DÉVELOPPEMENT : même configuration sur toutes les machines.
+#
+#   cp .env.example .env        (une seule fois)
+#   docker compose up --build
+#
+#   Front   : http://localhost:5173
+#   API     : http://localhost:3000/api/health
+#   Swagger : http://localhost:3000/api/docs
+
+name: bobine
+
+services:
+  # --- Conteneur des bases de données -------------------------------------
+  # Un seul serveur MongoDB, deux bases bien séparées :
+  #   - sample_mflix : le catalogue public de films (lecture seule pour l'API)
+  #   - bobine       : nos données (comptes, journal)
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD}
+    ports:
+      # 27018 côté machine, pour ne pas gêner un MongoDB déjà installé.
+      # Utile pour ouvrir les bases avec MongoDB Compass.
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+      # Scripts exécutés une seule fois, au tout premier démarrage (volume vide) :
+      # création des deux comptes, import du catalogue, index.
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ./database/seed:/seed:ro
+    healthcheck:
+      # On teste l'adresse réseau du conteneur (et pas localhost) : elle ne
+      # répond qu'une fois l'initialisation terminée.
+      test: ["CMD-SHELL", "mongosh --quiet --host $$(hostname) --eval \"db.adminCommand('ping').ok\""]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+
+  # --- Conteneur du back-end ----------------------------------------------
+  api:
+    build:
+      context: ./backend
+      target: dev
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-2h}
+      # Deux comptes MongoDB différents : l'API ne peut PAS écrire dans le catalogue.
+      MONGODB_URI: mongodb://bobine_app:${APP_DB_PASSWORD}@mongo:27017/bobine
+      CATALOG_MONGODB_URI: mongodb://catalog_reader:${CATALOG_DB_PASSWORD}@mongo:27017/sample_mflix
+      # Bases jetables utilisées uniquement par "npm test".
+      MONGODB_URI_TEST: mongodb://bobine_app:${APP_DB_PASSWORD}@mongo:27017/bobine_test?authSource=bobine
+      CATALOG_MONGODB_URI_TEST: mongodb://bobine_app:${APP_DB_PASSWORD}@mongo:27017/catalog_test?authSource=bobine
+    ports:
+      - "3000:3000"
+    volumes:
+      # Le code de la machine est partagé avec le conteneur : une modification
+      # relance l'API (nodemon). Les node_modules restent ceux du conteneur.
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+    # --legacy-watch : détection fiable des modifications à travers Docker
+    command: npx nodemon --legacy-watch src/server.js
+
+  # --- Conteneur du front-end (serveur de développement Vite) --------------
+  web:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      # Vite fait suivre les appels /api vers le conteneur "api".
+      API_PROXY_TARGET: http://api:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mongo-data:

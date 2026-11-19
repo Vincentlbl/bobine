@@ -1,0 +1,759 @@
+openapi: 3.0.3
+info:
+  title: API Bobine
+  version: 1.0.0
+  description: |
+    API de **Bobine**, le carnet de films personnel.
+
+    - Le **catalogue** (`/api/movies`, `/api/genres`) est public et en lecture seule.
+      Il vient du jeu de données public `sample_mflix` de MongoDB.
+    - Le **journal** (`/api/entries`) est privé : chaque requête exige un jeton JWT
+      (`Authorization: Bearer <jeton>`) obtenu via `/api/auth/register` ou `/api/auth/login`.
+
+    Pour tester ici : appelez `POST /api/auth/login`, copiez le `token` de la réponse,
+    cliquez sur **Authorize** et collez-le.
+servers:
+  - url: /
+    description: Serveur courant
+
+tags:
+  - name: Santé
+  - name: Authentification
+  - name: Catalogue
+    description: Films du catalogue public (lecture seule, sans jeton)
+  - name: Journal
+    description: Entrées privées de l'utilisateur connecté (watchlist, films vus, notes, favoris)
+  - name: Recommandations
+    description: Films proposés d'après le journal du compte connecté (jeton obligatoire)
+
+paths:
+  /api/health:
+    get:
+      tags: [Santé]
+      summary: Vérifier que l'API répond
+      responses:
+        '200':
+          description: L'API est démarrée
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+              example:
+                status: ok
+
+  /api/auth/register:
+    post:
+      tags: [Authentification]
+      summary: Créer un compte
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '201':
+          description: Compte créé, jeton fourni
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '409':
+          description: Email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: EMAIL_ALREADY_USED
+                  message: Un compte existe déjà avec cette adresse email.
+
+  /api/auth/login:
+    post:
+      tags: [Authentification]
+      summary: Se connecter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200':
+          description: Connexion réussie, jeton fourni
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          description: Email ou mot de passe incorrect (sans préciser lequel)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: UNAUTHORIZED
+                  message: Email ou mot de passe incorrect.
+
+  /api/movies:
+    get:
+      tags: [Catalogue]
+      summary: Rechercher et parcourir les films
+      parameters:
+        - name: q
+          in: query
+          description: Texte recherché dans le titre (insensible à la casse)
+          schema:
+            type: string
+            maxLength: 100
+          example: godfather
+        - name: genre
+          in: query
+          description: Genre exact (voir `/api/genres`)
+          schema:
+            type: string
+          example: Drama
+        - name: year
+          in: query
+          description: Année de sortie
+          schema:
+            type: integer
+            minimum: 1880
+            maximum: 2100
+        - name: sort
+          in: query
+          description: |
+            Tri : `popular` (nombre de votes IMDb), `rating` (note IMDb, films d'au moins
+            10 000 votes), `recent` (année), `title` (ordre alphabétique)
+          schema:
+            type: string
+            enum: [popular, rating, recent, title]
+            default: popular
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 24
+      responses:
+        '200':
+          description: Une page de films
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoviePage'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+
+  /api/movies/{id}:
+    get:
+      tags: [Catalogue]
+      summary: Fiche complète d'un film
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Le film demandé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetail'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/genres:
+    get:
+      tags: [Catalogue]
+      summary: Liste des genres du catalogue
+      responses:
+        '200':
+          description: Genres triés par ordre alphabétique
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+              example:
+                items: [Action, Adventure, Animation]
+
+  /api/entries:
+    get:
+      tags: [Journal]
+      summary: Lister les entrées de mon journal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/EntryStatus'
+        - name: favorite
+          in: query
+          schema:
+            type: boolean
+        - name: movieId
+          in: query
+          description: Pour savoir si un film précis est déjà dans mon journal
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Uniquement les entrées du compte connecté (liste vide possible)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Journal]
+      summary: Ajouter un film à mon journal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryCreation'
+            examples:
+              watchlist:
+                summary: À voir
+                value:
+                  movieId: 573a1396f29313caabce4a9a
+                  status: watchlist
+              watched:
+                summary: Vu, noté et commenté
+                value:
+                  movieId: 573a1396f29313caabce4a9a
+                  status: watched
+                  rating: 9
+                  watchedAt: '2026-11-14'
+                  review: Un classique.
+                  favorite: true
+      responses:
+        '201':
+          description: Entrée créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Ce film est déjà dans le journal du compte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: ENTRY_ALREADY_EXISTS
+                  message: Ce film est déjà dans votre journal.
+
+  /api/entries/stats:
+    get:
+      tags: [Journal]
+      summary: Statistiques de mon journal
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Compteurs et genres les plus vus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/entries/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Journal]
+      summary: Consulter une entrée
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: L'entrée demandée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Journal]
+      summary: Modifier une entrée (partiellement)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryUpdate'
+            example:
+              status: watched
+              rating: 8
+              watchedAt: '2026-11-15'
+      responses:
+        '200':
+          description: L'entrée modifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Journal]
+      summary: Supprimer une entrée
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Entrée supprimée (aucun corps)
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/recommendations:
+    get:
+      tags: [Recommandations]
+      summary: Films recommandés d'après mon journal
+      description: |
+        Calcul fait à chaque appel, en trois étapes :
+        1. chaque film du journal donne un signal (note de 1 à 10 ramenée entre -0,8 et 1,
+           watchlist 0,3, vu sans note 0,2, coup de cœur +0,5) ;
+        2. les signaux sont additionnés par genre : c'est le profil de goûts ;
+        3. les films du catalogue qui portent un des 3 genres préférés, hors journal,
+           reçoivent un score : 70 % affinité avec le profil, 30 % note IMDb.
+
+        Journal vide ou sans genre aimé : `basedOn` vaut `popular` et la réponse
+        contient les films les mieux notés du catalogue.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 24
+            default: 12
+      responses:
+        '200':
+          description: Les films recommandés, du meilleur score au moins bon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recommendations'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Identifiant (ObjectId MongoDB, 24 caractères hexadécimaux)
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{24}$'
+      example: 573a1396f29313caabce4a9a
+
+  responses:
+    InvalidInput:
+      description: Corps, paramètre ou identifiant invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: INVALID_INPUT
+              message: status doit valoir watchlist ou watched.
+    Unauthorized:
+      description: Jeton absent, invalide ou expiré
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: 'Jeton manquant : connectez-vous.'
+    NotFound:
+      description: Ressource absente, ou appartenant à un autre compte
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Entrée introuvable.
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - INVALID_INPUT
+                - UNAUTHORIZED
+                - NOT_FOUND
+                - EMAIL_ALREADY_USED
+                - ENTRY_ALREADY_EXISTS
+                - INTERNAL_ERROR
+            message:
+              type: string
+
+    Credentials:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice@example.test
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          example: MotDePasse123!
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          type: object
+          required: [id, email]
+          properties:
+            id:
+              type: string
+              example: 691a1f77bcf86cd799439011
+            email:
+              type: string
+              example: alice@example.test
+        token:
+          type: string
+          description: JWT signé, à envoyer dans l'en-tête Authorization
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    MovieSummary:
+      type: object
+      required: [id, title, year, genres, poster, runtime, imdbRating, imdbVotes]
+      properties:
+        id:
+          type: string
+          example: 573a1396f29313caabce4a9a
+        title:
+          type: string
+          example: The Godfather
+        year:
+          type: integer
+          example: 1972
+        genres:
+          type: array
+          items:
+            type: string
+          example: [Crime, Drama]
+        poster:
+          type: string
+          nullable: true
+          description: URL de l'affiche (certaines fiches n'en ont pas)
+        runtime:
+          type: integer
+          nullable: true
+          description: Durée en minutes
+          example: 175
+        imdbRating:
+          type: number
+          example: 9.2
+        imdbVotes:
+          type: integer
+          example: 1038358
+
+    MovieDetail:
+      allOf:
+        - $ref: '#/components/schemas/MovieSummary'
+        - type: object
+          properties:
+            plot:
+              type: string
+              nullable: true
+            directors:
+              type: array
+              items:
+                type: string
+            cast:
+              type: array
+              items:
+                type: string
+            countries:
+              type: array
+              items:
+                type: string
+            languages:
+              type: array
+              items:
+                type: string
+            rated:
+              type: string
+              nullable: true
+              example: R
+            released:
+              type: string
+              format: date
+              nullable: true
+              example: '1972-03-24'
+
+    MoviePage:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieSummary'
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 24
+        total:
+          type: integer
+          description: Nombre total de films correspondant à la recherche
+          example: 23216
+        totalPages:
+          type: integer
+          example: 968
+
+    EntryStatus:
+      type: string
+      enum: [watchlist, watched]
+      description: '`watchlist` = à voir, `watched` = vu'
+
+    EntryFields:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/EntryStatus'
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+          description: Note personnelle sur 10. Doit rester `null` tant que le film est en watchlist.
+        watchedAt:
+          type: string
+          format: date
+          nullable: true
+          description: Date de visionnage (YYYY-MM-DD, pas dans le futur). `null` en watchlist.
+          example: '2026-11-14'
+        review:
+          type: string
+          maxLength: 2000
+          description: Critique personnelle (chaîne vide acceptée)
+        favorite:
+          type: boolean
+          description: Coup de cœur
+
+    EntryCreation:
+      allOf:
+        - type: object
+          required: [movieId, status]
+          properties:
+            movieId:
+              type: string
+              description: Identifiant d'un film existant du catalogue
+              example: 573a1396f29313caabce4a9a
+        - $ref: '#/components/schemas/EntryFields'
+      description: Tout autre champ (id, ownerId...) est refusé avec 400.
+
+    EntryUpdate:
+      allOf:
+        - $ref: '#/components/schemas/EntryFields'
+      minProperties: 1
+      description: |
+        Modification partielle et non vide. `movieId`, `id`, `ownerId` et tout champ
+        inconnu sont refusés avec 400.
+
+    Entry:
+      type: object
+      required: [id, movieId, status, rating, watchedAt, review, favorite, createdAt, updatedAt, movie]
+      properties:
+        id:
+          type: string
+          example: 691a2c1ebcf86cd799439012
+        movieId:
+          type: string
+          example: 573a1396f29313caabce4a9a
+        status:
+          $ref: '#/components/schemas/EntryStatus'
+        rating:
+          type: integer
+          nullable: true
+          example: 9
+        watchedAt:
+          type: string
+          format: date
+          nullable: true
+          example: '2026-11-14'
+        review:
+          type: string
+          example: Un classique.
+        favorite:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        movie:
+          allOf:
+            - $ref: '#/components/schemas/MovieSummary'
+          nullable: true
+          description: Résumé du film, lu dans la base catalogue
+
+    Stats:
+      type: object
+      required: [watchedCount, watchlistCount, favoriteCount, averageRating, topGenres]
+      properties:
+        watchedCount:
+          type: integer
+          example: 12
+        watchlistCount:
+          type: integer
+          example: 5
+        favoriteCount:
+          type: integer
+          example: 3
+        averageRating:
+          type: number
+          nullable: true
+          description: Moyenne des notes données (null si aucune note)
+          example: 7.4
+        topGenres:
+          type: array
+          description: Les 5 genres les plus vus
+          items:
+            type: object
+            required: [genre, count]
+            properties:
+              genre:
+                type: string
+                example: Drama
+              count:
+                type: integer
+                example: 8
+
+    Recommendations:
+      type: object
+      required: [basedOn, likedGenres, items]
+      properties:
+        basedOn:
+          type: string
+          enum: [journal, popular]
+          description: journal = calculé d'après mes goûts ; popular = repli sur les mieux notés
+        likedGenres:
+          type: array
+          description: Mes 5 genres préférés et leur poids dans le profil
+          items:
+            type: object
+            required: [genre, weight]
+            properties:
+              genre:
+                type: string
+                example: Sci-Fi
+              weight:
+                type: number
+                example: 2.6
+        items:
+          type: array
+          items:
+            type: object
+            required: [movie, score, matchedGenres]
+            properties:
+              movie:
+                $ref: '#/components/schemas/MovieSummary'
+              score:
+                type: integer
+                nullable: true
+                minimum: 0
+                maximum: 100
+                description: Correspondance avec mes goûts (null quand basedOn vaut popular)
+                example: 91
+              matchedGenres:
+                type: array
+                description: Les genres du film qui font partie de mes genres aimés
+                items:
+                  type: string
+                example: [Action, Sci-Fi]
